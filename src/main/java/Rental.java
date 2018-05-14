@@ -13,6 +13,10 @@ public class Rental {
         return movie;
     }
 
+    public int calculateFrequentRenterPoints() {
+        return movie.getPriceCode() == Movie.NEW_RELEASE && daysRented > 1 ? 2 : 1;
+    }
+
     private Movie movie;
     private int daysRented;
 

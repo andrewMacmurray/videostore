@@ -1,14 +1,19 @@
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Customer {
+
+    private String name;
+    private List<Rental> rentals = new ArrayList<>();
 
     public Customer(String name) {
         this.name = name;
     }
 
     public void addRental(Rental rental) {
-        rentals.addElement(rental);
+        rentals.add(rental);
     }
 
     public String getName() {
@@ -16,52 +21,58 @@ public class Customer {
     }
 
     public String statement() {
-        double totalAmount = 0;
-        int frequentRenterPoints = 0;
-        Enumeration rentals = this.rentals.elements();
-        String result = "Rental Record for " + getName() + "\n";
-
-        while (rentals.hasMoreElements()) {
-            double thisAmount = 0;
-            Rental each = (Rental) rentals.nextElement();
-
-            // determines the amount for each line
-            switch (each.getMovie().getPriceCode()) {
-                case Movie.REGULAR:
-                    thisAmount += 2;
-                    if (each.getDaysRented() > 2)
-                        thisAmount += (each.getDaysRented() - 2) * 1.5;
-                    break;
-                case Movie.NEW_RELEASE:
-                    thisAmount += each.getDaysRented() * 3;
-                    break;
-                case Movie.CHILDRENS:
-                    thisAmount += 1.5;
-                    if (each.getDaysRented() > 3)
-                        thisAmount += (each.getDaysRented() - 3) * 1.5;
-                    break;
-            }
-
-            frequentRenterPoints++;
-
-            if (each.getMovie().getPriceCode() == Movie.NEW_RELEASE
-                    && each.getDaysRented() > 1)
-                frequentRenterPoints++;
-
-            result += "\t" + each.getMovie().getTitle() + "\t"
-                    + String.valueOf(thisAmount) + "\n";
-            totalAmount += thisAmount;
-
-        }
-
-        result += "You owed " + String.valueOf(totalAmount) + "\n";
-        result += "You earned " + String.valueOf(frequentRenterPoints) + " frequent renter points\n";
-
-
-        return result;
+        return customerSummary() + allRentalsSummary() + statementSummary();
     }
 
-    private String name;
-    private Vector rentals = new Vector();
+    private String allRentalsSummary() {
+        return rentalStream()
+                .map(this::rentalSummary)
+                .collect(Collectors.joining(""));
+    }
+
+    private int getTotalFrequentRenterPoints() {
+        return rentalStream()
+                .mapToInt(Rental::calculateFrequentRenterPoints)
+                .sum();
+    }
+
+    private double getTotalRentalsCost() {
+        return rentalStream()
+                .mapToDouble(this::calculatePrice)
+                .sum();
+    }
+
+    private Stream<Rental> rentalStream() {
+        return rentals.stream();
+    }
+
+    private double calculatePrice(Rental rental) {
+        int daysRented = rental.getDaysRented();
+        int priceCode = rental.getMovie().getPriceCode();
+
+        switch (priceCode) {
+            case Movie.REGULAR:
+                return daysRented > 2 ? 2 + (daysRented - 2) * 1.5 : 2;
+            case Movie.NEW_RELEASE:
+                return daysRented * 3;
+            case Movie.CHILDRENS:
+                return daysRented > 3 ? 1.5 + (daysRented - 3) * 1.5 : 1.5;
+            default:
+                return 0;
+        }
+    }
+
+    private String customerSummary() {
+        return String.format("Rental Record for %s\n", name);
+    }
+
+    private String rentalSummary(Rental rental) {
+        return String.format("\t%s\t%.1f\n", rental.getMovie().getTitle(), calculatePrice(rental));
+    }
+
+    private String statementSummary() {
+        return String.format("You owed %.1f\nYou earned %d frequent renter points\n", getTotalRentalsCost(), getTotalFrequentRenterPoints());
+    }
 
 }
+

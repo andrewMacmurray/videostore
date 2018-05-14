@@ -1,5 +1,8 @@
 public class Rental {
 
+    private Movie movie;
+    private int daysRented;
+
     public Rental(Movie movie, int daysRented) {
         this.movie = movie;
         this.daysRented = daysRented;
@@ -9,15 +12,16 @@ public class Rental {
         return daysRented;
     }
 
-    public Movie getMovie() {
-        return movie;
+    public String getTitle() {
+        return movie.getTitle();
+    }
+
+    public double getRentalCost() {
+        return movie.calculatePrice(daysRented);
     }
 
     public int calculateFrequentRenterPoints() {
-        return movie.getPriceCode() == Movie.NEW_RELEASE && daysRented > 1 ? 2 : 1;
+        return movie.getFrequentRenterPoints();
     }
-
-    private Movie movie;
-    private int daysRented;
 
 }

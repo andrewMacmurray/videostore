@@ -24,7 +24,6 @@ public class VideoStoreTest {
     @Test
     public void testSingleNewReleaseStatement() {
         addRental(theCell, 3);
-
         assertStatement("9.0", "2", movie("The Cell", "9.0"));
     }
 
@@ -32,7 +31,6 @@ public class VideoStoreTest {
     public void testDualNewReleaseStatement() {
         addRental(theCell, 3);
         addRental(meanGirls, 3);
-
         assertStatement("18.0", "4",
                 movie("The Cell", "9.0"),
                 movie("Mean Girls", "9.0")
@@ -42,7 +40,6 @@ public class VideoStoreTest {
     @Test
     public void testSingleChildrensStatement() {
         addRental(tiggerMovie, 3);
-
         assertStatement("1.5", "1", movie("The Tigger Movie", "1.5"));
     }
 
@@ -51,13 +48,14 @@ public class VideoStoreTest {
         addRental(plan9, 1);
         addRental(eightAndAHalf, 2);
         addRental(eraserHead, 3);
-
         assertStatement("7.5", "3",
                 movie("Plan 9 from Outer Space", "2.0"),
                 movie("8 1/2", "2.0"),
                 movie("Eraserhead", "3.5")
         );
     }
+
+    // Test Helper Methods
 
     private void addRental(Movie movie, int daysRented) {
         customerStatement.addRental(new Rental(movie, daysRented));
@@ -73,11 +71,7 @@ public class VideoStoreTest {
     }
 
     private String movie(String title, String cost) {
-        return tabbed(title, cost);
-    }
-
-    private String tabbed(String... lines) {
-        return "\t" + String.join("\t", lines);
+        return "\t" + title + "\t" + cost;
     }
 
     private String newLines(String... lines) {

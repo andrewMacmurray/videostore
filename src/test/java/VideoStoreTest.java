@@ -7,6 +7,12 @@ public class VideoStoreTest {
 
     private CustomerStatement customerStatement;
 
+    private final Movie theCell = new NewReleaseMovie("The Cell");
+    private final Movie tiggerMovie = new NewReleaseMovie("The Tigger Movie");
+    private final Movie plan9 = new RegularMovie("Plan 9 from Outer Space");
+    private final Movie eraserHead = new RegularMovie("Eraserhead");
+    private final Movie eightAndAHalf = new RegularMovie("8 1/2");
+
     @Before
     public void setUp() {
         customerStatement = new CustomerStatement("Fred");
@@ -14,33 +20,68 @@ public class VideoStoreTest {
 
     @Test
     public void testSingleNewReleaseStatement() {
-        addRental(new NewReleaseMovie("The Cell"), 3);
+        addRental(theCell, 3);
 
-        assertEquals("Rental Record for Fred\n\tThe Cell\t9.0\nYou owed 9.0\nYou earned 2 frequent renter points\n", customerStatement.statement());
+        String expected = printedLines(
+                "Rental Record for Fred",
+                tabbed("The Cell", "9.0"),
+                "You owed 9.0",
+                "You earned 2 frequent renter points"
+        );
+        assertEquals(expected, customerStatement.statement());
     }
 
     @Test
     public void testDualNewReleaseStatement() {
-        addRental(new NewReleaseMovie("The Cell"), 3);
-        addRental(new NewReleaseMovie("The Tigger Movie"), 3);
+        addRental(theCell, 3);
+        addRental(tiggerMovie, 3);
 
-        assertEquals("Rental Record for Fred\n\tThe Cell\t9.0\n\tThe Tigger Movie\t9.0\nYou owed 18.0\nYou earned 4 frequent renter points\n", customerStatement.statement());
+        String expected = printedLines(
+                "Rental Record for Fred",
+                tabbed("The Cell", "9.0"),
+                tabbed("The Tigger Movie", "9.0"),
+                "You owed 18.0",
+                "You earned 4 frequent renter points"
+        );
+        assertEquals(expected, customerStatement.statement());
     }
 
     @Test
     public void testSingleChildrensStatement() {
-        addRental(new ChildrensMovie("The Tigger Movie"), 3);
+        addRental(tiggerMovie, 3);
 
-        assertEquals("Rental Record for Fred\n\tThe Tigger Movie\t1.5\nYou owed 1.5\nYou earned 1 frequent renter points\n", customerStatement.statement());
+        String expected = printedLines(
+                "Rental Record for Fred",
+                tabbed("The Tigger Movie", "1.5"),
+                "You owed 1.5",
+                "You earned 1 frequent renter points"
+        );
+        assertEquals(expected, customerStatement.statement());
     }
 
     @Test
     public void testMultipleRegularStatement() {
-        addRental(new RegularMovie("Plan 9 from Outer Space"), 1);
-        addRental(new RegularMovie("8 1/2"), 2);
-        addRental(new RegularMovie("Eraserhead"), 3);
+        addRental(plan9, 1);
+        addRental(eightAndAHalf, 2);
+        addRental(eraserHead, 3);
 
-        assertEquals("Rental Record for Fred\n\tPlan 9 from Outer Space\t2.0\n\t8 1/2\t2.0\n\tEraserhead\t3.5\nYou owed 7.5\nYou earned 3 frequent renter points\n", customerStatement.statement());
+        String expected = printedLines(
+                "Rental Record for Fred",
+                tabbed("Plan 9 from Outer Space", "2.0"),
+                tabbed("8 1/2", "2.0"),
+                tabbed("Eraserhead", "3.5"),
+                "You owed 7.5",
+                "You earned 3 frequent renter points"
+        );
+        assertEquals(expected, customerStatement.statement());
+    }
+
+    private String tabbed(String... lines) {
+        return "\t" + String.join("\t", lines);
+    }
+
+    private String printedLines(String... lines) {
+        return String.join("\n", lines) + "\n";
     }
 
     private void addRental(Movie movie, int daysRented) {
